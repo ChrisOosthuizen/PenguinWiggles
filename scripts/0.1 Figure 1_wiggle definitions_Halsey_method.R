@@ -186,7 +186,7 @@ profile = ggplot(data = data, aes(x = time, y = depth)) +
              aes(x = time, y = depth, group = "Change points"), 
              col = "red", shape = 16, size = 2) +
   gg_theme()+
-  theme(plot.margin=grid::unit(c(0,0,0,0), "mm"), 
+  theme(plot.margin=grid::unit(c(1,1,1,1), "mm"), 
         legend.position = "none",
         axis.title.x=element_blank(),
         axis.text.x=element_blank(),
@@ -230,9 +230,9 @@ w6 <- tibble(y = c(-2.4,-3.2,-3.2,-2.4),x =c(84.5,84.5, 91.5, 91.5))
 speed = ggplot(data = data, aes(x = time, y = vertical_speed_val)) + 
   geom_line() + 
   gg_theme()+
-  theme(legend.position = c(0.7, 0.2),
+  theme(legend.position = "inside", legend.position.inside =c(0.7, 0.2),
         legend.title = element_blank(),
-        plot.margin=grid::unit(c(0,0,0,0), "mm"))+
+        plot.margin=grid::unit(c(1,1,1,1), "mm"))+
   geom_point(data=subset(data, wiggle_period ==  1),
              aes(x = time, y = vertical_speed_val, group = "Wiggles"), col = "navy", shape = 1, alpha = 0.6, size  = 1) + 
   geom_point(data=subset(data, wiggle ==  1),
@@ -282,7 +282,7 @@ wiggle = ggplot(data = w, aes(x=time, y = depth)) +
   annotate("rect", xmin = 30.5, xmax = 31, ymin = -Inf, ymax = Inf,fill = "grey", alpha = 0.8) + 
   geom_line() + 
   gg_theme()+
-  theme(plot.margin=grid::unit(c(0,0,0,0), "mm"),
+  theme(plot.margin=grid::unit(c(1,1,1,1), "mm"),
         axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())+
@@ -348,15 +348,18 @@ vspeed
 wiggle / vspeed
 
 # patchwork plot of all 4 figures
-profile / wiggle /  speed / vspeed +
-  plot_layout(ncol = 2, heights = c(1, .4) & theme(plot.margin = c(-5, -5, -5, -5)))
+com_plot =  profile / wiggle /  speed / vspeed +
+          plot_layout(ncol = 2, heights = c(1, .4) & theme(plot.margin = c(-5, -5, -5, -5)))+ 
+          plot_annotation(tag_levels = 'A')
 
 ## Save pdf plot 
-pdf("./plots/Figure1.pdf",
+pdf("./figures/Figure1.pdf",
        useDingbats = FALSE, width = 11, height = 7)
-profile / wiggle /  speed / vspeed +
-   plot_layout(ncol = 2, heights = c(1, .4) & theme(plot.margin = c(-5, -5, -5, -5)))
+com_plot
 dev.off()
 
+
+# Save as PNG
+ggsave("./figures/Figure1.png", com_plot, width = 10, height = 8, dpi = 1000)
 
 
