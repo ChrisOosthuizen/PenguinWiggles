@@ -1,0 +1,253 @@
+---
+title: "diveMove dive threshold example"
+date: "2025-02-01"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+A simple example demonstrating that single, shallow dives that cross the desired depth threshold (in the calibrateDepth function of diveMove) multiple times will be split into separate dives. We therefore recommend using a shallow dive threshold in calibrateDepth, followed by post hoc subsetting to retain deeper dives of interest.
+
+
+```{r load packages, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
+
+# load packages
+library(tidyverse)
+library(diveMove)
+library(here)
+
+# set ggplot theme
+gg_theme <- function () { 
+  theme_bw() %+replace% 
+    theme(
+      axis.text = element_text(colour = "black", size = 11),
+      axis.title = element_text(size=12),
+      axis.ticks = element_line(colour = "black"),
+      panel.grid = element_blank(),
+      strip.background = element_blank(),
+      panel.border = element_rect(colour = "black", fill = NA),
+      axis.line = element_line(colour = "black"),
+      legend.background = element_blank())
+}
+
+```
+
+## Import TDR dive data (only a few dives)
+
+```{r code, warning = FALSE}
+dives <-  readRDS(here("data", "diveMove_threshold_example.rds"))
+
+# Define colors for different dive phases (diveMove)
+my_colors <- c("D" = "lightsteelblue", 
+               "DB" = "lightsteelblue",
+               "B" = "lightsteelblue",
+               "BA" = "lightsteelblue", 
+               "A" = "lightsteelblue",
+               "DA" = "lightsteelblue",
+               "X" = "darkblue")
+
+# plot data 
+ggplot(data = dives, 
+       aes(x = date.time, y = depth*-1)) + 
+  geom_line() +
+  geom_point(aes(colour = InDive), alpha = 0.3, size = 2, shape = 15)+
+  scale_color_manual(values = my_colors)+
+  scale_x_datetime(date_labels = "%H:%M:%S") +
+  gg_theme() + 
+  xlab("Time") +
+  ylab("Depth (m)")+
+  geom_hline(yintercept = -3, color = "blue", linetype = "dashed", size = 1) +
+  geom_point(data=subset(dives, PCE_1hz > 0),
+             aes(x = date.time, y = depth*-1), 
+             fill = "red", col = "navy", shape = 21, size = 2) +
+    annotate("text", x = max(dives$date.time),  y = -18, label = "Video prey captures", 
+           size = 5, color = "black", hjust = 1, vjust = 0)+
+    annotate("point", x = max(dives$date.time)-125,  y = -17.9, size = 2.5, 
+             fill = "red", col = "navy", shape = 21)  +
+  theme(legend.position = "none") +
+  theme(axis.text = element_text(colour = "black", size = 13),
+        axis.title = element_text(size=15))
+
+# Subset to only one dive
+
+example_dive = dives %>%
+  dplyr::filter(id == "2022_01_10_AC2101_DI02") %>%
+  dplyr::filter(!is.na(vid_time)) %>%
+  arrange(date.time) %>%
+  dplyr::filter(date.time > '2022-01-10 17:53:48') %>%
+  dplyr::filter(date.time < '2022-01-10 17:54:44')
+
+# plot this one dive
+ggplot(data = example_dive, 
+       aes(x = date.time, y = depth*-1)) + 
+  geom_line() +
+  geom_point(aes(colour = InDive), alpha = 1, size = 4, shape = 15)+
+  scale_color_manual(values = my_colors)+
+  scale_x_datetime(date_labels = "%H:%M:%S") +
+  gg_theme() + 
+  xlab("Time") +
+  ylab("Depth (m)")+
+  geom_hline(yintercept = -3, color = "blue", linetype = "dashed", size = 1) +
+  geom_point(data=subset(example_dive, PCE_1hz > 0),
+             aes(x = date.time, y = depth*-1), 
+             fill = "red", col = "navy", shape = 21, size = 2) +
+  annotate("text", x = max(example_dive$date.time),  y = -6, label = "Video prey captures", 
+           size = 5, color = "black", hjust = 1, vjust = 0)+
+   annotate("point", x = max(example_dive$date.time)-19,  y = -5.9, size = 2.5, 
+             fill = "red", col = "navy", shape = 21)  +
+  theme(legend.position = "none") +
+  theme(axis.text = element_text(colour = "black", size = 13),
+        axis.title = element_text(size=15))
+```
+
+## 2. Divemove analysis with 3 m threshold
+
+```{r Divemove analysis with 3 m threshold, warning = FALSE}
+
+depth.threshold = 3  
+
+dat = as.data.frame(example_dive)
+
+# now start creating the TDR dive object
+filename = "Divedata"
+
+tdr <- createTDR(time = dat$date.time, 
+                 depth = dat$depth, 
+                 speed = FALSE, 
+                 dtime = 1,   #  sampling interval used in seconds
+                 file = filename)
+
+# Don't do any zero-offset correction in this example (too little data)
+tdr.calib = calibrateDepth(tdr,
+                           dive.thr = depth.threshold, # only select dives deeper than threshold
+                           zoc.method='offset',
+                           offset = 0,
+                           k=c(3, 5760),
+                           probs=c(0.5, 0.02),
+                           dive.model = "unimodal",
+                           smooth.par=0.1,
+                           knot.factor=20, 
+                           descent.crit.q=0.01, 
+                           ascent.crit.q=0,
+                           na.rm=T)
+
+# diveMove detected 3 dives
+
+# create dive summary metrics for each dive 
+dives <- diveStats(tdr.calib)   
+# list dives
+dives
+
+# plot the dive classification
+# plotTDR(tdr.calib, surface=TRUE)
+
+#  recreate this above plot manually 
+dat$InDive = tdr.calib@dive.phases
+
+ggplot(data = dat, 
+         aes(x = date.time, y = depth*-1)) + 
+  geom_line() +
+  geom_point(aes(colour = InDive), alpha = 1, size = 4, shape = 15)+
+  scale_color_manual(values = my_colors)+
+  scale_x_datetime(date_labels = "%H:%M:%S") +
+  geom_point(data=subset(example_dive, PCE_1hz > 0),
+             aes(x = date.time, y = depth*-1),
+             fill = "red", col = "navy", shape = 21, size = 2) +
+  gg_theme() + 
+  xlab("Time") +
+  ylab("Depth (m)")+
+  geom_hline(yintercept = -3, color = "blue", linetype = "dashed", size = 1) +
+  annotate("text", x = max(example_dive$date.time),  y = -6, label = "Video prey captures", 
+           size = 5, color = "black", hjust = 1, vjust = 0)+
+   annotate("point", x = max(example_dive$date.time)-19,  y = -5.9, size = 2.5, 
+             fill = "red", col = "navy", shape = 21)  +
+  theme(legend.position = "none") +
+  theme(axis.text = element_text(colour = "black", size = 13),
+        axis.title = element_text(size=15))
+
+```
+
+The dark blue squares in the plot above represent data points that are shallower than 3 m depth. Light grey squares are data points deeper than 3 m depth. Note that the diveMove "threshold" (blue dashed line) does not exclude entire "dives" below the 3 m threshold, but ALL depth values < 3 m (i.e., all dark blue squares). Here, the result is that a single shallow dive crossing the 3 m threshold several times is divided into 3 individual dives (a dive ends each time the light grey squares transition to dark squares). 
+
+To prevent shallow dives that cross the desired depth threshold multiple times from being split into separate dives, one can specify a shallow dive depth in diveMove's calibrateDepth function. Subsequently, dives can be subset based on a greater (desired) maximum dive depth.
+
+
+## 2. Divemove analysis with 0.4 m threshold
+
+```{r Divemove analysis with 0.4 m threshold, warning = FALSE}
+
+depth.threshold = 0.4 
+
+dat = as.data.frame(example_dive)
+
+# now start creating the TDR dive object
+filename = "Divedata"
+
+tdr <- createTDR(time = dat$date.time, 
+                 depth = dat$depth, 
+                 speed = FALSE, 
+                 dtime = 1,   #  sampling interval used in seconds
+                 file = filename)
+
+
+# Don't do any zero-offset correction 
+tdr.calib = calibrateDepth(tdr,
+                           dive.thr = depth.threshold, # only select dives deeper than threshold
+                           zoc.method='offset',
+                           offset = 0,
+                           k=c(3, 5760),
+                           probs=c(0.5, 0.02),
+                           dive.model = "unimodal",
+                           smooth.par=0.1,
+                           knot.factor=20, 
+                           descent.crit.q=0.01, 
+                           ascent.crit.q=0,
+                           na.rm=T)
+
+# divemove detect 1 dive.
+
+# create dive summary metrics for each dive 
+dives <- diveStats(tdr.calib)     
+
+# list dives
+dives
+
+# plot the dive classification
+# plotTDR(tdr.calib, surface=TRUE)
+
+#  recreate this plot manually 
+dat$InDive = tdr.calib@dive.phases
+
+
+ggplot(data = dat, 
+       aes(x = date.time, y = depth*-1)) + 
+  geom_line() +
+  geom_point(aes(colour = InDive), alpha = 1, size = 4, shape = 15)+
+  scale_color_manual(values = my_colors)+
+  scale_x_datetime(date_labels = "%H:%M:%S") +
+  geom_point(data=subset(example_dive, PCE_1hz > 0),
+             aes(x = date.time, y = depth*-1),
+             fill = "red", col = "navy", shape = 21, size = 2) +
+  gg_theme() + 
+  xlab("Time") +
+  ylab("Depth (m)")+
+  geom_hline(yintercept = -0.4, color = "blue", linetype = "dashed", size = 1) +
+  annotate("text", x = max(example_dive$date.time),  y = -6, label = "Video prey captures", 
+           size = 5, color = "black", hjust = 1, vjust = 0)+
+   annotate("point", x = max(example_dive$date.time)-19,  y = -5.9, size = 2.5, 
+             fill = "red", col = "navy", shape = 21)  +
+  theme(legend.position = "none") +
+  theme(axis.text = element_text(colour = "black", size = 13),
+        axis.title = element_text(size=15))
+  
+# It is likely that one may not want to analyse all the dives with a shallow maximum dive depth. 
+# Dives with a maximum depth shallower than 3 m can then be filtered out of the dive summary.
+
+dives <- dives[dives$maxdep >= 3, ] 
+
+```
+
