@@ -1,5 +1,5 @@
 ---
-title: "diveMove dive threshold example"
+title: "Supplement 7 - diveMove dive threshold example"
 date: "2025-02-01"
 output: pdf_document
 ---
@@ -78,8 +78,8 @@ example_dive = dives %>%
   dplyr::filter(id == "2022_01_10_AC2101_DI02") %>%
   dplyr::filter(!is.na(vid_time)) %>%
   arrange(date.time) %>%
-  dplyr::filter(date.time > '2022-01-10 17:53:48') %>%
-  dplyr::filter(date.time < '2022-01-10 17:54:44')
+  dplyr::filter(date.time > as.POSIXct('2022-01-10 17:53:48', tz = "UTC")) %>%
+  dplyr::filter(date.time < as.POSIXct('2022-01-10 17:54:44', tz = "UTC"))
 
 # plot this one dive
 ggplot(data = example_dive, 
@@ -96,12 +96,13 @@ ggplot(data = example_dive,
              aes(x = date.time, y = depth*-1), 
              fill = "red", col = "navy", shape = 21, size = 2) +
   annotate("text", x = max(example_dive$date.time),  y = -6, label = "Video prey captures", 
-           size = 5, color = "black", hjust = 1, vjust = 0)+
+           size = 5, color = "black", hjust = 1, vjust = 0) +
    annotate("point", x = max(example_dive$date.time)-19,  y = -5.9, size = 2.5, 
              fill = "red", col = "navy", shape = 21)  +
   theme(legend.position = "none") +
   theme(axis.text = element_text(colour = "black", size = 13),
         axis.title = element_text(size=15))
+
 ```
 
 ## 2. Divemove analysis with 3 m threshold
@@ -171,7 +172,7 @@ ggplot(data = dat,
 
 ```
 
-The dark blue squares in the plot above represent data points that are shallower than 3 m depth. Light grey squares are data points deeper than 3 m depth. Note that the diveMove "threshold" (blue dashed line) does not exclude entire "dives" below the 3 m threshold, but ALL depth values < 3 m (i.e., all dark blue squares). Here, the result is that a single shallow dive crossing the 3 m threshold several times is divided into 3 individual dives (a dive ends each time the light grey squares transition to dark squares). 
+The dark blue squares in the plot above represent data points that are shallower than 3 m depth. Light grey squares are data points deeper than 3 m depth. Note that the diveMove "threshold" (blue dashed line) does not exclude entire "dives" shallower than the 3 m threshold, but ALL depth values < 3 m (i.e., all dark blue squares). Here, the result is that a single shallow dive crossing the 3 m threshold several times is divided into 3 individual dives (a dive ends each time the light grey squares transition to dark blue squares). 
 
 To prevent shallow dives that cross the desired depth threshold multiple times from being split into separate dives, one can specify a shallow dive depth in diveMove's calibrateDepth function. Subsequently, dives can be subset based on a greater (desired) maximum dive depth.
 

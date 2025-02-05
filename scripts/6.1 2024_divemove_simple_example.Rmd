@@ -1,5 +1,5 @@
 ---
-title: "diveMove calibration example"
+title: "Supplement 6 - diveMove calibration example"
 date: "2024-09-19"
 output: pdf_document
 ---
