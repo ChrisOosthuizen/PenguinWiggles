@@ -94,6 +94,7 @@ data$change_points
 
 #Create columns for wiggles
 data$wiggle <- data$wiggle_period <- NA
+data$wiggle_amplitude <- NA
 
 # Loop through all the 'negative' change points 
 # (i.e. changes from ascend to descend) and look for valid 'wiggles'
@@ -121,6 +122,9 @@ for(ipt in which(data$change_points == -1)){
     #Get the range of depths in the wiggle and keep if > 2m (lead or lag) 
     d_delta_wiggle = max(wiggle_data$depth) - min(wiggle_data$depth)
     
+    # Add the amplitude value to the wiggle_data
+    wiggle_data$wiggle_amplitude <- d_delta_wiggle
+    
     #Get the range of depths (in the wiggle and keep if > 0.5m (lead AND lag) 
     d_delta_wiggle1 = max(wiggle_data$depth) - wiggle_data$depth[1]
     d_delta_wiggle2 = max(wiggle_data$depth) - tail(wiggle_data$depth, n=1)
@@ -140,6 +144,8 @@ for(ipt in which(data$change_points == -1)){
       #Set the columns in the original data frame
       data$wiggle[wiggle_start:wiggle_end] <- wiggle_data$wiggle
       data$wiggle_period[wiggle_start:wiggle_end] <- wiggle_data$wiggle_period
+      data$wiggle_amplitude[wiggle_start:wiggle_end] <- wiggle_data$wiggle_amplitude
+      
     }
   }
 }

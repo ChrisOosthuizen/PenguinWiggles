@@ -1,12 +1,12 @@
 "Performance metrics","Simeone and Wilson 2003 (0.3m)","Takahashi et al. 2004","Halsey et al. 2007 (1m)","Halsey et al. 2007 (2m)"
-"Sensitivity",0.86,0.81,0.72,0.56
-"Specificity",0.59,0.4,0.84,0.91
-"Pos Pred Value",0.71,0.61,0.84,0.88
-"Neg Pred Value",0.78,0.64,0.72,0.64
-"Precision",0.71,0.61,0.84,0.88
-"Recall",0.86,0.81,0.72,0.56
-"F1",0.78,0.7,0.77,0.69
+"Sensitivity",0.85,0.81,0.72,0.56
+"Specificity",0.69,0.41,0.85,0.92
+"Pos Pred Value",0.76,0.62,0.85,0.89
+"Neg Pred Value",0.79,0.64,0.71,0.64
+"Precision",0.76,0.62,0.85,0.89
+"Recall",0.85,0.81,0.72,0.56
+"F1",0.8,0.7,0.78,0.69
 "Prevalence",0.54,0.54,0.54,0.54
-"Detection Rate",0.46,0.44,0.39,0.3
-"Detection Prevalence",0.65,0.71,0.46,0.34
-"Balanced Accuracy",0.72,0.61,0.78,0.74
+"Detection Rate",0.46,0.44,0.39,0.31
+"Detection Prevalence",0.6,0.71,0.46,0.34
+"Balanced Accuracy",0.77,0.61,0.78,0.74
