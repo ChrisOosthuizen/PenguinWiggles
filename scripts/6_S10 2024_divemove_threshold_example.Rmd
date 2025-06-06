@@ -1,5 +1,5 @@
 ---
-title: "Supplement 7 - diveMove dive threshold example"
+title: "Supplement 10 - diveMove dive threshold example"
 date: "2025-02-01"
 output: pdf_document
 ---
@@ -10,7 +10,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-A simple example demonstrating that single, shallow dives that cross the desired depth threshold (in the calibrateDepth function of diveMove) multiple times will be split into separate dives. We therefore recommend using a shallow dive threshold in calibrateDepth, followed by post hoc subsetting to retain deeper dives of interest.
+This is a simple example demonstrating that single, shallow dives which cross the desired depth threshold (in the calibrateDepth function of diveMove) multiple times will be split into separate dives. We therefore recommend using a shallow dive threshold in calibrateDepth, followed by post hoc subsetting to retain deeper dives of interest.
 
 
 ```{r load packages, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
@@ -177,7 +177,7 @@ The dark blue squares in the plot above represent data points that are shallower
 To prevent shallow dives that cross the desired depth threshold multiple times from being split into separate dives, one can specify a shallow dive depth in diveMove's calibrateDepth function. Subsequently, dives can be subset based on a greater (desired) maximum dive depth.
 
 
-## 2. Divemove analysis with 0.4 m threshold
+## 3. Divemove analysis with 0.4 m threshold
 
 ```{r Divemove analysis with 0.4 m threshold, warning = FALSE}
 
@@ -209,7 +209,7 @@ tdr.calib = calibrateDepth(tdr,
                            ascent.crit.q=0,
                            na.rm=T)
 
-# divemove detect 1 dive.
+# diveMove detected 1 dive.
 
 # create dive summary metrics for each dive 
 dives <- diveStats(tdr.calib)     

@@ -1,5 +1,5 @@
 ---
-title: "Supplement 6 - diveMove calibration example"
+title: "Supplement 9 - diveMove calibration example"
 date: "2024-09-19"
 output: pdf_document
 ---
@@ -11,7 +11,9 @@ knitr::opts_chunk$set(echo = TRUE)
 ## Introduction
 
 A simple calibration example showing that 'offset' in calibrateDepth is to 'correct the surface value'. 
-'offset' should not be used to ignore shallow dives (use 'dive.thr' for that). We've seen cases in published literature where these commands are confused.  
+'offset' should not be used to ignore shallow dives (use 'dive.thr' for that purpose). Cases in the published literature have shown 
+these commands are sometimes confused.
+
 
 ```{r load packages, echo=TRUE, results='hide', message=FALSE, warning=FALSE}
 
@@ -23,12 +25,12 @@ library(here)
 ```{r code, warning = FALSE}
 # Import TDR dive data 
 dives <-  readRDS(here("data", "diveMove_example.rds"))
-# Count how many dives are more than 5 m? Answer = 8.
+# Count how many dives are deeper than 5 m — the answer is 8.
 plot(dives$date.time, dives$depth, pch = ".", col = "navy", cex = 2)  # plot the data
 abline(h = 5, lty = 2) # add line at 5 m depth
 abline(h = 30, lty = 2) # add line at 30 m depth
 
-# Zoom in at 0 m - there is no drift - no need to correct this TDR data
+# Zoom in around 0 m — there is no drift, so no correction is needed for this TDR data.
 plot(dives$date.time, dives$depth, pch = ".", ylim = c(-0.5, 2), col = "navy", cex = 2)
 abline(h = -0.01)  # add line at -0.01 m depth
 
@@ -62,8 +64,8 @@ tdr.calib <- calibrateDepth(tdr,
                             na.rm=T)
 
 # Be careful with the offset method. The following code is not correct.
-# zoc.method="offset" is not what dives to ignore, it is asking "how wrong is the surface 
-# layer, and how much should I adjust the surface value?" 
+# zoc.method="offset" does not determine which dives to ignore — it asks,
+# "How wrong is the surface layer, and how much should I adjust the surface value?"
 
 # Using offset=5 with the default dive threshold (4m) ignores all dives shallower than 9m!
 tdr.calib_offset <- calibrateDepth(tdr,
@@ -73,7 +75,7 @@ tdr.calib_offset <- calibrateDepth(tdr,
                                    descent.crit.q=0.01, ascent.crit.q=0.01,
                                    knot.factor=60)
 
-# only identifies 7 dives in this example, but there are 8 dives deeper than 5 m.
+# Only 7 dives are identified in this example, even though there are 8 dives deeper than 5 m.
 
 # create dive summary metrics for each dive
 tdr.dat = as.data.frame(tdr.calib@tdr)
@@ -85,7 +87,7 @@ dive.stats_offset <- diveStats(tdr.calib_offset)
 
 # plot the max dive depths from the filter method
 plot(dive.stats$maxdep, ylim = c(0,38), pch = 15, xlab = "Dive number", ylab = "Maximum depth")  
-abline(h = 30, lty = 2) # notice that max dep is all above 30 m, like the data.
+abline(h = 30, lty = 2) # Note that all maximum depths are above 30 m, consistent with the data.
 abline(h = 5, lty = 2) # add line at 5 m depth
 
 # now add max dive depth from the offset method
@@ -96,5 +98,5 @@ points(c(1, 3:8), dive.stats_offset$maxdep,  col = "blue", pch = 16)  # max dive
 
 ```
 
-When 'offset=5' is incorrectly used there is a systematic bias in maximum depth (blue circles in the plot above) and some dives deeper than the 'target' threshold depth are missed. 
+When 'offset=5' is incorrectly used, there is a systematic bias in maximum depth (blue circles in the plot above), and some dives deeper than the target threshold depth are missed. 
 

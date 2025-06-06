@@ -42,6 +42,9 @@ Takahashi_wiggles <- function(subdat) {
     
     wiggleN_Takahashi <- sum(subdat$wiggles_Takahashi)
     
+    # Get max depth of the dive:
+    subdat$max_dive_depth = min(subdat$wig_depth)
+    
     return(list(wiggleN_Takahashi = wiggleN_Takahashi,
                 subdat_Takahashi = subdat))
     

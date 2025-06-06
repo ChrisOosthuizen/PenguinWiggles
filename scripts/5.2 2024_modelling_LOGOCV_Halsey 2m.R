@@ -105,9 +105,9 @@ m_Halsey_2m_pp <- posterior_predict(m_Halsey_2m_post)
 PPD = bayesplot::ppc_dens_overlay(y = log1p(result_df$video_pce_IN), yrep = log1p(m_Halsey_2m_pp[1:100,])) + 
   labs(x = "log(Video prey captures)", y = "log(Density)") +
   gg_theme() +
-  theme(legend.position = "inside", legend.position.inside = c(0.9, 0.85)) + 
+  theme(legend.position = "inside", legend.position.inside = c(0.9, 0.75)) + 
   annotate("text", x = Inf, y = Inf, 
-           label = "Halsey et al. 2007 (2m)", 
+           label = "Three-fold changepoint wiggles (2m)\n(Halsey et al. 2007)", 
            size = 4, 
            hjust = 1.1, vjust = 1.6)
 
@@ -304,7 +304,7 @@ geom_ribbon(data = plotdat_Halsey_2m, aes(x = wig, ymin = lwl90, ymax = upl90), 
   geom_point(data = Density_est , 
              aes(x = wiggleN_Halsey_2m, y = video_pce_IN, color = Density), alpha = 1) + 
   scale_color_viridis_c(option = 'inferno', end = 0.9, begin = 0.1) +
-  xlab("Wiggle count (Halsey et al. 2007 (2m))") + 
+  xlab("Three-fold changepoint wiggle count (2m)") + 
   ylab("Video observed prey captures") 
 
 # Save as PNG
@@ -449,7 +449,7 @@ LOGOCV_preds = Density_est %>%
   scale_x_continuous(limits = c(0, 60)) +
   annotate("text", 
            x = Inf, y = Inf, 
-           label = "Halsey et al. 2007 (2m)", size = 4, 
+           label = "Three-fold changepoint wiggles (2m)\n(Halsey et al. 2007)", size = 4, 
            hjust = 1.1, vjust = 1.6) + 
   theme(#legend.text=element_text(size = 8),
     #           legend.title=element_text(size = 10),

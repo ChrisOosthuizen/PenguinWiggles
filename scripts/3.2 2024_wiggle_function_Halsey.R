@@ -113,6 +113,11 @@ Halsey_wiggles <- function(subdat, wiggle_threshold = 0.5, wiggle_threshold2 = 0
         # Set the columns in the original subdat frame
         subdat$wiggle[wiggle_start:wiggle_end] <- wiggle_subdat$wiggle
         subdat$wiggle_period[wiggle_start:wiggle_end] <- wiggle_subdat$wiggle_period
+        
+        # Get max depth of the dive:
+        subdat$max_dive_depth = min(subdat$wig_depth)
+        
+        
       }
     }
   }

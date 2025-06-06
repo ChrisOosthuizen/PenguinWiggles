@@ -105,9 +105,9 @@ m_Takahashi_pp <- posterior_predict(m_Takahashi_post)
 PPD = bayesplot::ppc_dens_overlay(y = log1p(result_df$video_pce_IN), yrep = log1p(m_Takahashi_pp[1:100,])) + 
   labs(x = "log(Video prey captures)", y = "log(Density)") +
   gg_theme() +
-  theme(legend.position = "inside", legend.position.inside = c(0.9, 0.85)) + 
+  theme(legend.position = "inside", legend.position.inside = c(0.9, 0.75)) + 
   annotate("text", x = Inf, y = Inf, 
-           label = "Takahashi et al. 2004", 
+           label = "Single changepoint wiggles\n(Takahashi et al. 2004)", 
            size = 4, 
            hjust = 1.1, vjust = 1.6)
 
@@ -304,7 +304,7 @@ geom_ribbon(data = plotdat_Takahashi, aes(x = wig, ymin = lwl90, ymax = upl90), 
   geom_point(data = Density_est , 
              aes(x = wiggleN_Takahashi, y = video_pce_IN, color = Density), alpha = 1) + 
   scale_color_viridis_c(option = 'inferno', end = 0.9, begin = 0.1) +
-  xlab("Wiggle count (Takahashi et al. 2004)") + 
+  xlab("Single changepoint wiggle count") + 
   ylab("Video observed prey captures") 
 
 # Save as PNG
@@ -449,7 +449,7 @@ LOGOCV_preds = Density_est %>%
   scale_x_continuous(limits = c(0, 60)) +
   annotate("text", 
            x = Inf, y = Inf, 
-           label = "Takahashi et al. 2004", size = 4, 
+           label = "Single changepoint wiggles\n(Takahashi et al. 2004)", size = 4, 
            hjust = 1.1, vjust = 1.6) + 
   theme(#legend.text=element_text(size = 8),
     #           legend.title=element_text(size = 10),

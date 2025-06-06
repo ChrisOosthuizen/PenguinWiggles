@@ -33,7 +33,7 @@ library(diveMove)
 process.dat <- list.files("./data_processed_1hz/",
                     pattern = "*rds", 
                    #pattern = '2022_01_07',           # debugging
-                 # pattern = '2023_01_14_KI18',
+                   # pattern = '2023_01_14_KI18',
                     full.names = TRUE)
 
 # print the name of each file
@@ -88,6 +88,23 @@ tdr <- createTDR(time = dat$date.time,
 # Make sure 'depth' is positive and starts at zero!
 # show(tdr)
 
+# # detect individual dives
+
+# # https://rdrr.io/cran/diveMove/man/calibrateDepth.html
+# Default parameter values:
+# tdr.calib = calibrateDepth(tdr,
+#                            dive.thr = depth.threshold, # only select dives deeper than threshold
+#                            zoc.method='filter',
+#                            k=c(3, 5760),
+#                            probs=c(0.5, 0.02),
+#                            dive.model = "unimodal",
+#                            smooth.par=0.1,
+#                            knot.factor=20, 
+#                            descent.crit.q=0.01, 
+#                            ascent.crit.q=0,
+#                            na.rm=T)
+
+# Attempt to improve the bottom phase demarcation: 
 # detect individual dives
 tdr.calib = calibrateDepth(tdr,
                            dive.thr = depth.threshold, # only select dives deeper than threshold
@@ -96,9 +113,9 @@ tdr.calib = calibrateDepth(tdr,
                            probs=c(0.5, 0.02),
                            dive.model = "unimodal",
                            smooth.par=0.1,
-                           knot.factor=20, 
-                           descent.crit.q=0.01, 
-                           ascent.crit.q=0,
+                           knot.factor=80, 
+                           descent.crit.q=0.05, 
+                           ascent.crit.q=0.03,
                            na.rm=T)
 
 tdr.dat = as.data.frame(tdr.calib@tdr)
